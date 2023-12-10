@@ -53,6 +53,7 @@ const microsoftStrategyMiddleware = new MicrosoftStrategy(
     logger.info(`user ${rows[0]} authenticated successfully`);
     if (rows.length > 0) {
       logger.info(`user ${profile.emails[0].value} already exists`);
+      logger.info(rows[0])
       const parsedUser = parseToUserDTO(rows[0]);
       done(null, parsedUser);
     } else {
