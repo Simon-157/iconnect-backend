@@ -13,6 +13,7 @@ SELECT
     categories.name AS category_name,
     issues.created_at AS issue_created_at,
     issues.updated_at AS issue_updated_at,
+    issues.attachment_url,
     CASE
         WHEN COUNT(assigned_issues.assigned_resolver_id) > 0 THEN
             json_agg(json_build_object(
@@ -78,6 +79,7 @@ export const getUserIssuesQueryUser = ` SELECT
         issues.updated_at AS issue_updated_at,
         issues.status,
         issues.priority,
+        issues.attachment_url,
         CASE
             WHEN COUNT(ai.assigned_resolver_id) > 0 THEN 'Assigned'
             ELSE 'Not Assigned'
@@ -118,6 +120,7 @@ export const getIssuesByCategoryQuery = `SELECT
     issues.updated_at AS issue_updated_at,
     issues.status,
     issues.priority,
+    issues.attachment_url,
     CASE
         WHEN COUNT(ai.assigned_resolver_id) > 0 THEN 'Assigned'
         ELSE 'Not Assigned'
@@ -160,6 +163,7 @@ export const getAllIssuesQuery = `SELECT
     issues.updated_at AS issue_updated_at,
     issues.status,
     issues.priority,
+    issues.attachment_url,
     CASE
         WHEN COUNT(ai.assigned_resolver_id) > 0 THEN 'Assigned'
         ELSE 'Not Assigned'
