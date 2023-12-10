@@ -5,6 +5,7 @@
   "license": "MIT",
   "scripts": {
     "tsc": "tsc",
+    "dev":"nodemon ./src/index.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node ./dist/index.js"
   },
