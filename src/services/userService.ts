@@ -11,7 +11,7 @@ const getUserById = async (userId: number): Promise<User | null> => {
     }
     return result.rows[0];
   } catch (error) {
-    console.error('Error retrieving user:', error);
+    logger.error('Error retrieving user:', error);
     throw new Error('Failed to retrieve user');
   }
 };
@@ -22,7 +22,7 @@ const getAllUsers = async (): Promise<User[]> => {
     const result = await query('SELECT * FROM user_data');
     return result.rows;
   } catch (error) {
-    console.error('Error retrieving users:', error);
+    logger.error('Error retrieving users:', error);
     throw new Error('Failed to retrieve users');
   }
 };
@@ -44,7 +44,7 @@ const changeUserRole = async (userId: number, newRole: string, categoryId: numbe
     categoryId !== 0 && await makeUserIssueResolver(userId, categoryId);
     return updateResult.rows[0];
   } catch (error) {
-    console.error('Error changing user role:', error);
+    logger.error('Error changing user role:', error);
     throw new Error('Failed to change user role');
   }
 };
@@ -59,7 +59,7 @@ const createUser = async (userData: User): Promise<User> => {
     );
     return result.rows[0];
   } catch (error:any) {
-    console.error('Error creating user:', error);
+    logger.error('Error creating user:', error);
     if (error.code === '23505') {
       // Unique violation (duplicate key)
       throw new Error('Email or unique_id is already in use');
@@ -81,7 +81,7 @@ const makeUserIssueResolver = async (userId: number, categoryId: number) => {
    const issueResolver =  await query(insertQuery, queryParams);
    return issueResolver.rows[0];
   } catch (error) {
-    console.error('Error creating issue resolver:', error);
+    logger.error('Error creating issue resolver:', error);
     throw new Error('Failed to create issue resolver');
 
   }

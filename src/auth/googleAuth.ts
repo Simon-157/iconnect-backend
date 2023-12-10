@@ -119,6 +119,7 @@ const googleStrategyMiddleware = new GoogleStrategy(
 );
 
 const serializeMiddleware = (user: Partial<UserDTO>, done: any) => {
+  logger.info(user)
   done(null, user.userId);
 };
 
@@ -135,6 +136,7 @@ const deserializeMiddleware = async (userId: string, done: any) => {
       [userId]
     );
     const parsedUserData = parseToUserDTO(rows[0]);
+    logger.info(parsedUserData)
     done(null, parsedUserData);
   } catch (err) {
     logger.log({ level: "error", message: `${err}` });

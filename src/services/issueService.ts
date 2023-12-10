@@ -12,7 +12,7 @@ const getIssueById = async (issueId: number): Promise<Issue | null> => {
     const issues = result.rows;
     return issues.length ? issues[0] : null;
   } catch (error) {
-    console.error('Error retrieving issue by ID:', error);
+    logger.error('Error retrieving issue by ID:', error);
     throw new Error('Failed to retrieve issue by ID');
   }
 };
@@ -26,7 +26,7 @@ const getIssuesByUserWithDetails = async (userId: number): Promise<Issue[]> => {
     const result = await query(getUserIssuesQueryUser, [userId]);
     return processIssueDetails(result.rows);
   } catch (error) {
-    console.error('Error retrieving issues by user with details:', error);
+    logger.error('Error retrieving issues by user with details:', error);
     throw new Error('Failed to retrieve issues by user with details');
   }
 };
@@ -40,7 +40,7 @@ const getIssuesByDepartmentWithDetails = async (userId:number): Promise<Issue[]>
     const result = await query(getIssuesByCategoryQuery, queryParams);
     return processIssueDetails(result.rows);
   } catch (error) {
-    console.error('Error retrieving issues by department with details:', error);
+    logger.error('Error retrieving issues by department with details:', error);
     throw new Error('Failed to retrieve issues by department with details');
   }
 };
@@ -66,7 +66,7 @@ const getAssignedOrNotAssignedIssues = async (assigned: Boolean) => {
     const issues = processIssueDetails(result.rows);
     return issues;
   } catch (error) {
-    console.error('Error retrieving issues by assignment status:', error);
+    logger.error('Error retrieving issues by assignment status:', error);
     throw new Error('Failed to retrieve issues by assignment status');
   }
 };
@@ -78,7 +78,7 @@ const getRessolverAssignments =  async (resolverId:Number) =>{
     const issues = result.rows;
     return issues
   } catch (error) {
-    console.log(error)
+    logger.error(error)
     throw new Error('Failed to retrieve assigned issues to resolver')
     
   }
@@ -91,7 +91,7 @@ const getAllIssues = async () => {
     const issues = processIssueDetails(result.rows);
     return issues;
   } catch (error) {
-    console.error('Error retrieving all issues:', error);
+    logger.error('Error retrieving all issues:', error);
     throw new Error('Failed to retrieve all issues');
   }
   
@@ -110,7 +110,7 @@ const assignIssueToResolver = async (issueId: number, resolverId: number) => {
     const result = await query(insertQuery, queryParams);
     return result.rows[0];
   } catch (error) {
-    console.error('Error assigning issue to resolver:', error);
+    logger.error('Error assigning issue to resolver:', error);
     throw new Error('Failed to assign issue to resolver');
   }
 };
@@ -143,7 +143,7 @@ const createIssueWithAttachment = async (issueData: Issue, attachmentData: any):
       attachments: [createdAttachment.rows[0]],
     };
   } catch (error) {
-    console.error('Error creating issue with attachment:', error);
+    logger.error('Error creating issue with attachment:', error);
     throw new Error('Failed to create issue with attachment');
   }
 };
@@ -168,7 +168,7 @@ const createIssue = async (issueData: Issue): Promise<Issue> => {
       ...createdIssue.rows[0],
     };
   } catch (error) {
-    console.error('Error creating issue :', error);
+    logger.error('Error creating issue :', error);
     throw new Error('Failed to create issue');
   }
 };
@@ -195,7 +195,7 @@ const updateIssue = async (issueId: number, updatedIssueData: Partial<Issue>): P
     const updatedIssue = await query(updateIssueText, updateIssueParams);
     return updatedIssue.rows[0];
   } catch (error) {
-    console.error('Error updating issue:', error);
+    logger.error('Error updating issue:', error);
     throw new Error('Failed to update issue');
   }
 };
@@ -209,7 +209,7 @@ const deleteIssue = async (issueId: number): Promise<void> => {
   try {
     await query(deleteIssueText, deleteIssueParams);
   } catch (error) {
-    console.error('Error deleting issue:', error);
+    logger.error('Error deleting issue:', error);
     throw new Error('Failed to delete issue');
   }
 };
@@ -229,7 +229,7 @@ const updateIssueStatus = async (issueId: number, newStatus: string): Promise<Is
     const updatedIssue = await query(updateStatusText, updateStatusParams);
     return updatedIssue.rows[0];
   } catch (error) {
-    console.error('Error updating issue status:', error);
+    logger.error('Error updating issue status:', error);
     throw new Error('Failed to update issue status');
   }
 };
@@ -249,7 +249,7 @@ const updateIssuePriority = async (issueId: number, newPriority: string): Promis
     const updatedIssue = await query(updatePriorityText, updatePriorityParams);
     return updatedIssue.rows[0];
   } catch (error) {
-    console.error('Error updating issue priority:', error);
+    logger.error('Error updating issue priority:', error);
     throw new Error('Failed to update issue priority');
   }
 };

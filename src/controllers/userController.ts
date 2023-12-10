@@ -15,7 +15,7 @@ const getUserById = async (req: Request, res: Response) => {
     }
     res.status(200).json(user);
   } catch (error:any) {
-    console.error('Error in user controller:', error.message);
+    logger.error('Error in user controller:', error.message);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
@@ -26,7 +26,7 @@ const getAllUsers = async (req: Request, res: Response) => {
     const allUsers = await userService.getAllUsers();
     res.status(200).json(allUsers);
   } catch (error:any) {
-    console.error('Error in getting all users:', error.message);
+    logger.error('Error in getting all users:', error.message);
     res.status(500).json({ error: 'Failed to retrieve all users' });
   }
 };
@@ -37,7 +37,7 @@ const createUser = async (req: Request, res: Response) => {
     const newUser = await userService.createUser(userData);
     res.status(201).json(newUser);
   } catch (error:any) {
-    console.error('Error in user controller:', error.message);
+    logger.error('Error in user controller:', error.message);
     if (error.message.includes('already in use')) {
       return res.status(400).json({ error: 'Email or unique_id is already in use' });
     }
@@ -63,7 +63,7 @@ const changeUserRoleController = async (req: Request, res: Response) => {
     }
     return res.status(200).json({ status: 'success', message: 'User role updated successfully', user: updatedUser });
   } catch (error) {
-    console.error('Error changing user role:', error);
+    logger.error('Error changing user role:', error);
     return res.status(500).json({ status: 'error', message: 'Failed to change user role' });
   }
 };
@@ -83,7 +83,7 @@ const makeUserIssueResolverController = async (req: Request, res: Response) => {
 
     res.status(200).json({ message: 'User assigned as an issue resolver successfully' });
   } catch (error:any) {
-    console.error('Error in assigning user as an issue resolver:', error.message);
+    logger.error('Error in assigning user as an issue resolver:', error.message);
     res.status(500).json({ error: 'Failed to assign user as an issue resolver' });
   }
 };

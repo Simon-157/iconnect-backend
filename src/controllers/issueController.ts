@@ -8,7 +8,7 @@ const handleServiceError = (
   error: any,
   errorMessage: string
 ) => {
-  console.error(`Error in issue controller: ${errorMessage}`, error);
+  logger.error(`Error in issue controller: ${errorMessage}`, error);
   res.status(500).json({ error: "Internal Server Error" });
 };
 
@@ -116,7 +116,7 @@ const updateIssueController = async (
       priority,
     });
     if (updatedIssue) {
-      console.log("creating a notification for the status update");
+      logger.info("creating a notification for the status update");
       notificationService.notifyUser(
         updatedIssue.user_id,
         "update",
@@ -128,7 +128,7 @@ const updateIssueController = async (
       res.status(404).json({ success: false, message: "Issue not found" });
     }
   } catch (error) {
-    console.error("Error updating issue:", error);
+    logger.error("Error updating issue:", error);
     res.status(500).json({ success: false, message: "Failed to update issue" });
   }
 };
@@ -144,7 +144,7 @@ const updateIssueStatus = async (
     const updatedIssue = await issueService.updateIssueStatus(issueId, status);
 
     if (updatedIssue) {
-      console.log("creating a notification for the status update");
+      logger.info("creating a notification for the status update");
       notificationService.notifyUser(
         updatedIssue.user_id,
         "status",
@@ -156,7 +156,7 @@ const updateIssueStatus = async (
       res.status(404).json({ success: false, message: "Issue not found" });
     }
   } catch (error) {
-    console.error("Error updating issue:", error);
+    logger.error("Error updating issue:", error);
     res.status(500).json({ success: false, message: "Failed to update issue" });
   }
 };
@@ -169,7 +169,7 @@ const getRessolverAssignments = async (req: Request, res: Response) => {
     );
     res.status(200).json(assignments);
   } catch {
-    console.log("Failed to get resolver assignments");
+    logger.info("Failed to get resolver assignments");
     res
       .status(500)
       .json({ success: false, message: "Failed to get resolver assignments" });
@@ -196,7 +196,7 @@ const assignIssueToResolver = async (req: Request, res: Response) => {
         message: "Issue assigned to resolver successfully",
       });
   } catch (error: any) {
-    console.error("Error in assigning issue to resolver:", error.message);
+    logger.error("Error in assigning issue to resolver:", error.message);
     res
       .status(500)
       .json({ error: "true", meesage: "Failed to assign issue to resolver" });
@@ -222,7 +222,7 @@ const getAssignedOrNotAssignedIssues = async (req: Request, res: Response) => {
 
     res.status(200).json(issues);
   } catch (error: any) {
-    console.error(
+    logger.error(
       "Error in retrieving assigned or not assigned issues:",
       error.message
     );

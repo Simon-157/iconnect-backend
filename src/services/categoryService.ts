@@ -1,3 +1,4 @@
+import { logger } from "../config/logger";
 import { Category } from "../types";
 import { query } from "../utils/db";
 
@@ -14,7 +15,7 @@ const getIssueResolversForCategory = async (categoryId: number) => {
     const result = await query(queryText, [categoryId]);
     return result.rows;
   } catch (error) {
-    console.error('Error retrieving issue resolvers for category:', error);
+    logger.error('Error retrieving issue resolvers for category:', error);
     throw new Error('Failed to retrieve issue resolvers for category');
   }
 };
@@ -28,7 +29,7 @@ const getCategoryById = async (categoryId: number): Promise<Category | null> => 
     }
     return result.rows[0];
   } catch (error) {
-    console.error('Error retrieving category:', error);
+    logger.error('Error retrieving category:', error);
     throw new Error('Failed to retrieve category');
   }
 };
@@ -39,7 +40,7 @@ const getAllCategories = async (): Promise<Category[]> => {
     const result = await query('SELECT * FROM categories');
     return result.rows;
   } catch (error) {
-    console.error('Error retrieving categories:', error);
+    logger.error('Error retrieving categories:', error);
     throw new Error('Failed to retrieve categories');
   }
 };
@@ -54,7 +55,7 @@ const createCategory = async (categoryData: Category): Promise<Category> => {
     );
     return result.rows[0];
   } catch (error: any) {
-    console.error('Error creating category:', error);
+    logger.error('Error creating category:', error);
     if (error.code === '23505') {
       // Unique violation (duplicate key)
       throw new Error('Category name is already in use');

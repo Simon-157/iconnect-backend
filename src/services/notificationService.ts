@@ -1,4 +1,5 @@
 // notificationService.ts
+import { logger } from '../config/logger';
 import { query } from '../utils/db';
 
 
@@ -23,7 +24,7 @@ const notifyUser = async (userId: number,notification_type: string, message: str
     return notification.rows[0].notification_id;
   } catch (error) {
     // Handle error if any operation fails
-    console.error('Error notifying user:', error);
+    logger.error('Error notifying user:', error);
     throw new Error('Failed to notify user');
   }
 };
@@ -46,7 +47,7 @@ const notifyAdminForCategory = async (categoryId: number, message: string, issue
     return notification.rows[0].notification_id;
   } catch (error) {
     // Handle error if any operation fails
-    console.error('Error notifying admin:', error);
+    logger.error('Error notifying admin:', error);
     throw new Error('Failed to notify admin');
   }
 };
@@ -64,7 +65,7 @@ const markNotificationAsRead = async (notificationId: number) => {
 
     console.log(`Notification ${notificationId} marked as read`);
   } catch (error) {
-    console.error('Error marking notification as read:', error);
+    logger.error('Error marking notification as read:', error);
     throw new Error('Failed to mark notification as read');
   }
 };
