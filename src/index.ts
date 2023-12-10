@@ -40,7 +40,7 @@ export const io = new Server(server, {
   },
 });
 
-
+app.set("trust proxy", 1);
 app.use(cors(corsMiddleware));
 app.use(session(sessionMiddleware));
 
