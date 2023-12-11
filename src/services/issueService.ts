@@ -148,22 +148,20 @@ const createIssueWithAttachment = async (issueData: Issue, attachmentData: any):
   }
 };
 
-// TODO: create issue without attachement
 
 const createIssue = async (issueData: Issue): Promise<Issue> => {
-  const { user_id, category_id, title, description, status, priority, anonymous, attachment_url } = issueData;
+  const { user_id, category_id, title, description, status, priority, anonymous, attachment_url,  location } = issueData;
   const createIssueText = `
-    INSERT INTO issues (user_id, category_id, title, description, status, priority, is_anonymous, attachment_url)
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+    INSERT INTO issues (user_id, category_id, title, description, status, priority, is_anonymous, attachment_url, issuelocation)
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
     RETURNING *`;
 
-  const createIssueParams = [user_id, category_id, title, description, status, priority, anonymous, attachment_url];
+  const createIssueParams = [user_id, category_id, title, description, status, priority, anonymous, attachment_url, location];
 
   try {
     // Create the issue
     const createdIssue = await query(createIssueText, createIssueParams);
 
-    // Return the updated issue with attachment
     return {
       ...createdIssue.rows[0],
     };

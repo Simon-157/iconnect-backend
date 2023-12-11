@@ -67,6 +67,7 @@ const createIssue = async (req: Request, res: Response) => {
       attachment_url,
       status,
       priority,
+      location,
     } = req.body;
     const newIssue = await issueService.createIssue({
       user_id,
@@ -78,6 +79,7 @@ const createIssue = async (req: Request, res: Response) => {
       anonymous,
       attachment_url,
       assignmentStatus: "",
+      location,
     });
     res.status(201).json({ success: true, newIssue });
   } catch (error) {

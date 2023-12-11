@@ -35,6 +35,7 @@ type Issue = {
   anonymous: boolean;
   assignmentStatus:string,
   attachment_url: string | null;
+  location?:string,
   created_at?: string; // Timestamp in ISO format
   updated_at?: string; // Timestamp in ISO format
 

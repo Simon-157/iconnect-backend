@@ -14,6 +14,7 @@ SELECT
     issues.created_at AS issue_created_at,
     issues.updated_at AS issue_updated_at,
     issues.attachment_url,
+    issues.issuelocation as location,
     CASE
         WHEN COUNT(assigned_issues.assigned_resolver_id) > 0 THEN
             json_agg(json_build_object(
