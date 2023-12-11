@@ -89,4 +89,25 @@ const makeUserIssueResolver = async (userId: number, categoryId: number) => {
 
 
 
-export { getAllUsers, getUserById, changeUserRole, createUser, makeUserIssueResolver };
+const updateUserAvatar = async (userId: number, avatarUrl: string): Promise<User | null> => {
+  try {
+    const user = await getUserById(userId);
+    if (!user) {
+      return null;
+    }
+
+    const updateResult = await query('UPDATE user_data SET avatar_url = $1 WHERE user_id = $2 RETURNING *', [
+      avatarUrl,
+      userId,
+    ]);
+    return updateResult.rows[0];
+  } catch (error) {
+    logger.error('Error updating user avatar:', error);
+    throw new Error('Failed to update user avatar');
+  }
+};
+
+
+
+
+export { getAllUsers, getUserById, changeUserRole, createUser, makeUserIssueResolver, updateUserAvatar};

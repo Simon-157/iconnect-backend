@@ -88,4 +88,27 @@ const makeUserIssueResolverController = async (req: Request, res: Response) => {
   }
 };
 
-export { getAllUsers, getUserById, createUser,changeUserRoleController, makeUserIssueResolverController };
+
+const updateUserAvatarController = async (req: Request, res: Response) => {
+  const userId = parseInt(req.params.userId, 10);
+  const { avatarUrl } = req.body;
+
+  try {
+    const updatedUser = await userService.updateUserAvatar(userId, avatarUrl);
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    return res.status(200).json({
+      status: 'success',
+      message: 'User avatar updated successfully',
+      user: updatedUser,
+    });
+  } catch (error) {
+    logger.error('Error updating user avatar:', error);
+    return res.status(500).json({ status: 'error', message: 'Failed to update user avatar' });
+  }
+};
+
+export { getAllUsers, getUserById, createUser,changeUserRoleController, makeUserIssueResolverController, updateUserAvatarController };

@@ -26,4 +26,6 @@ appUserRouter.patch('/role/:userId', async (req, res) => {
 });
 
 
-
+appUserRouter.patch('/:userId/avatar', async (req, res) => {
+  await userController.updateUserAvatarController(req, res);
+});
