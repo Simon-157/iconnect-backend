@@ -7,7 +7,7 @@ import { UserDTO } from "../types/User";
 
 const parseToUserDTO = (params: Record<any, any>): UserDTO => {
   const parsed = {
-    userId: params.user_id,
+    userId: params?.user_id!,
     email: params.email,
     userName: params.user_name,
     avatarUrl: params.avatar_url,
@@ -33,7 +33,7 @@ const localStrategyMiddleware = new LocalStrategy(
         `
         SELECT * FROM user_data WHERE email = $1;
         `,
-        [email]
+        [email] 
       );
 
       if (rows.length === 0) {
@@ -51,7 +51,7 @@ const localStrategyMiddleware = new LocalStrategy(
         done(null, parsedUser);
       }
     } catch (error) {
-      done(error);
+      done(error, null);
     }
   }
 );
@@ -64,13 +64,13 @@ const deserializeMiddleware = async (userId: string, done: any) => {
   try {
     const { rows } = await pool.query(
       `
-      SELECT *
-      FROM user_data 
-      WHERE user_id = $1;
+      SELECT u.*
+      FROM user_data u
+      WHERE u.user_id = $1;
       `,
       [userId]
     );
-    logger.info(rows[1])
+    // logger.info(rows[1])
     const parsedUserData = parseToUserDTO(rows[0]);
     logger.info(parsedUserData);
     done(null, parsedUserData);
