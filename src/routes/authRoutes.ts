@@ -4,7 +4,7 @@ import { NextFunction, Request, Response, Router } from "express";
 import passport from "passport";
 import "../auth/googleAuth";
 import "../auth/microsoftAuth";
-import "../auth/localAuth";
+// import "../auth/localAuth";
 import createHttpError from "http-errors";
 import { pool } from "../config/psql";
 import { generateUsername } from '../utils/generateUsername';
