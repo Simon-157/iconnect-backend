@@ -59,17 +59,21 @@ router.post("/logout", (req: Request, res: Response, next: NextFunction) => {
 });
 
 
-
 router.post(
-  "/local/login",
+  "/login",
   passport.authenticate("local", {
-    successRedirect:
-      process.env.NODE_ENV == "production"
-        ? process.env.CLIENT_URI_CALLBACK_PROD
-        : process.env.CLIENT_URI_CALLBACK,
-    failureRedirect: "/failure",
-  })
+    failureRedirect: "/login-failure",
+    failureFlash: true,
+  }),
+  (req: Request, res: Response) => {
+    res.status(200).json({
+      success:true,
+      message: "Login successful",
+      user: req.user, 
+    });
+  }
 );
+
 
 router.post("/local/signup", async (req, res, next) => {
   try {

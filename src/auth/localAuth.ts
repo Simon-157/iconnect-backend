@@ -1,13 +1,29 @@
-import { Strategy as LocalStrategy } from "passport-local";
-import bcrypt from "bcrypt";
-import { pool } from "../config/psql";
-import { logger } from "../config/logger";
+import "dotenv/config";
 import passport from "passport";
+import LocalStrategy from "passport-local";
+import bcrypt from "bcrypt"; 
 import { UserDTO } from "../types/User";
+import { logger } from "../config/logger";
+import { generateUsername } from "../utils/generateUsername";
+import { pool } from "../config/psql";
 
-const parseToUserDTO = (params: Record<any, any>): UserDTO => {
-  const parsed = {
-    userId: params?.user_id!,
+interface UserParams {
+  user_id: string;
+  email: string;
+  user_name: string;
+  avatar_url: string;
+  display_name: string;
+  role: string;
+  bio: string;
+  current_room_id: string;
+  last_seen: string;
+  created_at: string;
+  password: string; 
+}
+
+const parseToUserDTO = (params: UserParams): UserDTO => {
+  const parsed: UserDTO = {
+    userId: params.user_id,
     email: params.email,
     userName: params.user_name,
     avatarUrl: params.avatar_url,
@@ -22,55 +38,63 @@ const parseToUserDTO = (params: Record<any, any>): UserDTO => {
   return parsed;
 };
 
-const localStrategyMiddleware = new LocalStrategy(
+const localStrategyMiddleware = new LocalStrategy.Strategy(
   {
-    usernameField: "email",
-    passwordField: "password",
+    usernameField: 'email',
+    passwordField: 'password',
   },
-  async (email: any, password: any, done: any) => {
+  async (email, password, done) => {
     try {
-      const { rows } = await pool.query(
+      const { rows } = await pool.query<UserParams>(
         `
-        SELECT * FROM user_data WHERE email = $1;
+        SELECT *
+        FROM user_data
+        WHERE email = $1;
         `,
-        [email] 
+        [email]
       );
 
-      if (rows.length === 0) {
-        return done(null, false, { message: "Incorrect email." });
-      }
+      if (rows.length > 0) {
+        const user = parseToUserDTO(rows[0]);
 
-      const user = rows[0];
-      const passwordMatch = await bcrypt.compare(password, user.password);
-
-      if (!passwordMatch) {
-        return done(null, false, { message: "Incorrect password." });
-      } else if (rows.length > 0) {
-        logger.info(rows[0])
-        const parsedUser = parseToUserDTO(rows[0]);
-        done(null, parsedUser);
+        // Compare passwords using bcrypt
+        bcrypt.compare(password, rows[0].password, (err, result) => {
+          if (err) {
+            logger.log({ level: "error", message: `${err}` });
+            return done(err);
+          }
+          if (result) {
+            return done(null, user);
+          } else {
+            return done(null, false, { message: 'Incorrect email or password' });
+          }
+        });
+      } else {
+        return done(null, false, { message: 'Incorrect email or password' });
       }
-    } catch (error) {
-      done(error, null);
+    } catch (err) {
+      logger.log({ level: "error", message: `${err}` });
+      return done(err, false);
     }
   }
 );
 
 const serializeMiddleware = (user: Partial<UserDTO>, done: any) => {
+  logger.info(user);
   done(null, user.userId);
 };
 
 const deserializeMiddleware = async (userId: string, done: any) => {
   try {
-    const { rows } = await pool.query(
+    const { rows } = await pool.query<UserParams>(
       `
-      SELECT u.*
-      FROM user_data u
-      WHERE u.user_id = $1;
+      SELECT *
+      FROM user_data
+      WHERE user_id = $1;
       `,
       [userId]
     );
-    // logger.info(rows[1])
+
     const parsedUserData = parseToUserDTO(rows[0]);
     logger.info(parsedUserData);
     done(null, parsedUserData);
@@ -80,6 +104,6 @@ const deserializeMiddleware = async (userId: string, done: any) => {
   }
 };
 
-passport.use(localStrategyMiddleware);
+passport.use('local', localStrategyMiddleware);
 passport.serializeUser(serializeMiddleware);
 passport.deserializeUser(deserializeMiddleware);
