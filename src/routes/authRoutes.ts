@@ -94,11 +94,7 @@ router.post("/local/signup", async (req, res, next) => {
     };
 
     const newUser = await pool.query(insertQuery);
-    const url = process.env.NODE_ENV == "production"
-        ? process.env.CLIENT_URI_CALLBACK_PROD
-        : process.env.CLIENT_URI_CALLBACK;
-
-    res.redirect(url!);
+    return res.status(201).json({user:newUser.rows[0],  message: `User ${displayName} created successfully.` });
 
   } catch (error) {
     next(error);
