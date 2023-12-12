@@ -71,8 +71,8 @@ const deserializeMiddleware = async (userId: string, done: any) => {
     const { rows } = await pool.query(
       `
       SELECT *
-      FROM user_data u
-      WHERE u.user_id = $1;
+      FROM user_data 
+      WHERE user_id = $1;
       `,
       [userId]
     );
