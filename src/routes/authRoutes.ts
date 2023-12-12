@@ -68,7 +68,6 @@ router.post(
         ? process.env.CLIENT_URI_CALLBACK_PROD
         : process.env.CLIENT_URI_CALLBACK,
     failureRedirect: "/failure",
-    failureFlash: true,
   })
 );
 
