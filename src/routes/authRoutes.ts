@@ -97,6 +97,7 @@ router.post("/local/signup", async (req, res, next) => {
     return res.status(201).json({user:newUser.rows[0],  message: `User ${displayName} created successfully.` });
 
   } catch (error) {
+    res.status(201).json({message: "Cannot register at the moment"});
     next(error);
   }
 });
