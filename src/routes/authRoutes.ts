@@ -7,6 +7,7 @@ import "../auth/microsoftAuth";
 import "../auth/localAuth";
 import createHttpError from "http-errors";
 import { pool } from "../config/psql";
+import { generateUsername } from '../utils/generateUsername';
 
 export const router = Router();
 
@@ -59,11 +60,8 @@ router.post("/logout", (req: Request, res: Response, next: NextFunction) => {
 
 
 
-
-
 router.post(
   "/local/login",
-  
   passport.authenticate("local", {
     successRedirect:
       process.env.NODE_ENV == "production"
@@ -76,7 +74,7 @@ router.post(
 
 router.post("/local/signup", async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, displayName } = req.body;
 
     const query = {
       text: 'SELECT * FROM user_data WHERE email = $1',
@@ -89,10 +87,10 @@ router.post("/local/signup", async (req, res, next) => {
       return res.status(400).json({ message: "User already exists." });
     }
     const hashedPassword = await bcrypt.hash(password, 10);
-
+    const defaultavatar = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRb7b5Uk6-fslFsGiTi_zqcNqdn9QqIC8AMxw&usqp=CAU"
     const insertQuery = {
-      text: 'INSERT INTO user_data (email, password) VALUES ($1, $2) RETURNING *',
-      values: [email, hashedPassword],
+      text: 'INSERT INTO user_data (email, password,user_name, display_name, avatar_url, role, language) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
+      values: [email, hashedPassword, generateUsername(displayName.toLowerCase()), displayName, defaultavatar,  'student', 'english'],
     };
 
     const newUser = await pool.query(insertQuery);
