@@ -63,7 +63,6 @@ router.post(
   "/login",
   passport.authenticate("local", {
     failureRedirect: "/login-failure",
-    failureFlash: true,
   }),
   (req: Request, res: Response) => {
     res.status(200).json({

@@ -21,8 +21,8 @@ interface UserParams {
   password: string; 
 }
 
-const parseToUserDTO = (params: UserParams): UserDTO => {
-  const parsed: UserDTO = {
+const parseToUserDTO = (params:Record<any, any>): UserDTO => {
+  const parsed = {
     userId: params.user_id,
     email: params.email,
     userName: params.user_name,
@@ -55,19 +55,19 @@ const localStrategyMiddleware = new LocalStrategy(
       );
 
       if (rows.length > 0) {
-        const user = parseToUserDTO(rows[0]);
-        logger.info(`local:, `, user)
+        const parseduser = parseToUserDTO(rows[0]);
+        logger.info(`local:, `, parseduser);
 
         // Compare passwords using bcrypt
         bcrypt.compare(password, rows[0].password, (err, result) => {
           if (err) {
     
             logger.log({ level: "error", message: `${err}` });
-            return done(err);
+            done(err);
           }
           else if (result) {
             logger.info(`user ${email} authenticated successfully local strategy`);
-            return done(null, user);
+            done(null, parseduser);
           } else {
             return done(null, false, { message: 'Incorrect email or password' });
           }
@@ -87,10 +87,12 @@ const serializeMiddleware = (user: Partial<UserDTO>, done: any) => {
   done(null, user?.userId);
 };
 
-const deserializeMiddleware = async (userId: string, done: any) => {
+
+
+const deserializeMiddleware = async (userId:any, done:any) => {
   try {
     const { rows } = await pool.query(
-      `
+      `user_id
       SELECT *
       FROM user_data
       WHERE user_id = $1;
@@ -98,15 +100,19 @@ const deserializeMiddleware = async (userId: string, done: any) => {
       [userId]
     );
 
-    const parsedUserData = parseToUserDTO(rows[0]);
-    logger.info(`local deserialize: `, parsedUserData);
-    done(null, parsedUserData);
+    if (rows.length > 0) {
+      const parsedUserData = parseToUserDTO(rows[0]);
+      logger.info(`local deserialize: `, parsedUserData);
+      done(null, parsedUserData);
+    } else {
+      done(null, false);
+    }
   } catch (err) {
     logger.log({ level: "error", message: `${err}` });
     done(err, null);
   }
 };
 
-passport.use('local', localStrategyMiddleware);
+passport.use(localStrategyMiddleware);
 passport.serializeUser(serializeMiddleware);
 passport.deserializeUser(deserializeMiddleware);
