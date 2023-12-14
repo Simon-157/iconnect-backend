@@ -1,5 +1,8 @@
 import express from 'express';
 import * as userController from '../controllers/userController';
+import passport from 'passport';
+import '../auth/localAuth';
+
 
 export const appUserRouter = express.Router();
 
@@ -29,3 +32,19 @@ appUserRouter.patch('/role/:userId', async (req, res) => {
 appUserRouter.patch('/:userId/avatar', async (req, res) => {
   await userController.updateUserAvatarController(req, res);
 });
+
+
+appUserRouter.post(
+  "/login",
+  passport.authenticate("local", {
+    failureRedirect: "/login-failure",
+    failureFlash: true,
+  }),
+  (req, res) => {
+    res.status(200).json({
+      success:true,
+      message: "Login successful",
+      user: req.user, 
+    });
+  }
+);

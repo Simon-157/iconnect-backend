@@ -1,6 +1,6 @@
 import "dotenv/config";
 import passport from "passport";
-import LocalStrategy from "passport-local";
+import {Strategy as LocalStrategy} from "passport-local";
 import bcrypt from "bcrypt"; 
 import { UserDTO } from "../types/User";
 import { logger } from "../config/logger";
@@ -38,7 +38,7 @@ const parseToUserDTO = (params: UserParams): UserDTO => {
   return parsed;
 };
 
-const localStrategyMiddleware = new LocalStrategy.Strategy(
+const localStrategyMiddleware = new LocalStrategy(
   {
     usernameField: 'email',
     passwordField: 'password',
@@ -56,14 +56,17 @@ const localStrategyMiddleware = new LocalStrategy.Strategy(
 
       if (rows.length > 0) {
         const user = parseToUserDTO(rows[0]);
+        logger.info(`local:, `, user)
 
         // Compare passwords using bcrypt
         bcrypt.compare(password, rows[0].password, (err, result) => {
           if (err) {
+    
             logger.log({ level: "error", message: `${err}` });
             return done(err);
           }
           if (result) {
+            logger.info(`user ${email} authenticated successfully local strategy`);
             return done(null, user);
           } else {
             return done(null, false, { message: 'Incorrect email or password' });
@@ -81,7 +84,7 @@ const localStrategyMiddleware = new LocalStrategy.Strategy(
 
 const serializeMiddleware = (user: Partial<UserDTO>, done: any) => {
   logger.info(user);
-  done(null, user.userId);
+  done(null, user?.userId);
 };
 
 const deserializeMiddleware = async (userId: string, done: any) => {
