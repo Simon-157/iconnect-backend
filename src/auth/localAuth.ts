@@ -1,118 +1,86 @@
-import "dotenv/config";
 import passport from "passport";
-import {Strategy as LocalStrategy} from "passport-local";
-import bcrypt from "bcrypt"; 
+import { Strategy as LocalStrategy } from "passport-local";
+import bcrypt from "bcrypt";
+import { pool } from "../config/psql";
 import { UserDTO } from "../types/User";
 import { logger } from "../config/logger";
-import { generateUsername } from "../utils/generateUsername";
-import { pool } from "../config/psql";
 
-interface UserParams {
-  user_id: string;
-  email: string;
-  user_name: string;
-  avatar_url: string;
-  display_name: string;
-  role: string;
-  bio: string;
-  current_room_id: string;
-  last_seen: string;
-  created_at: string;
-  password: string; 
-}
-
-const parseToUserDTO = (params:Record<any, any>): UserDTO => {
-  const parsed = {
+const parseToUserDTO = (params: Record<any, any>): UserDTO => {
+    const parsed = {
     userId: params.user_id,
     email: params.email,
     userName: params.user_name,
     avatarUrl: params.avatar_url,
     displayName: params.display_name,
-    role: params.role,
+    role:params.role,
     bio: params.bio,
     currentRoomId: params.current_room_id,
     lastSeen: params.last_seen,
     createdAt: params.created_at,
   };
-
   return parsed;
 };
 
 const localStrategyMiddleware = new LocalStrategy(
   {
-    usernameField: 'email',
-    passwordField: 'password',
+    usernameField: "email",
+    passwordField: "password", 
+    passReqToCallback: true,
   },
-  async (email, password, done) => {
+  async (req: any, email: string, password: string, done: any) => {
     try {
       const { rows } = await pool.query(
-        `
-        SELECT *
-        FROM user_data
-        WHERE email = $1;
-        `,
+        `SELECT * FROM user_data WHERE email = $1`,
         [email]
       );
 
-      if (rows.length > 0) {
-        const parseduser = parseToUserDTO(rows[0]);
-        logger.info(`local:, `, parseduser);
-
-        // Compare passwords using bcrypt
-        bcrypt.compare(password, rows[0].password, (err, result) => {
-          if (err) {
-    
-            logger.log({ level: "error", message: `${err}` });
-            done(err);
-          }
-          else if (result) {
-            logger.info(`user ${email} authenticated successfully local strategy`);
-            done(null, parseduser);
-          } else {
-            return done(null, false, { message: 'Incorrect email or password' });
-          }
-        });
-      } else {
-        return done(null, false, { message: 'Incorrect email or password' });
+      if (rows.length === 0) {
+        return done(null, false, { message: "Incorrect email or password" });
       }
+
+      const user = rows[0];
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+
+      if (!isPasswordValid) {
+        return done(null, false, { message: "Incorrect email or password" });
+      }
+
+      const parsedUser = parseToUserDTO(user);
+      return done(null, parsedUser);
     } catch (err) {
-      logger.log({ level: "error", message: `${err}` });
-      return done(err, false);
+      logger.error(err);
+      return done(err);
     }
   }
 );
 
-const serializeMiddleware = (user: Partial<UserDTO>, done: any) => {
-  logger.info(user);
-  done(null, user?.userId);
-};
+passport.use("local", localStrategyMiddleware);
 
+passport.serializeUser((user: Partial<UserDTO>, done) => {
+  done(null, user.userId);
+});
 
-
-const deserializeMiddleware = async (userId:any, done:any) => {
+passport.deserializeUser(async (userId: string, done) => {
   try {
     const { rows } = await pool.query(
-      `user_id
-      SELECT *
-      FROM user_data
-      WHERE user_id = $1;
-      `,
+      `SELECT * FROM user_data WHERE user_id = $1`,
       [userId]
     );
 
-    if (rows.length > 0) {
-      const parsedUserData = parseToUserDTO(rows[0]);
-      logger.info(`local deserialize: `, parsedUserData);
-      done(null, parsedUserData);
-    } else {
-      done(null, false);
+    if (rows.length === 0) {
+      return done(null, false);
     }
-  } catch (err) {
-    logger.log({ level: "error", message: `${err}` });
-    done(err, null);
-  }
-};
 
-passport.use(localStrategyMiddleware);
-passport.serializeUser(serializeMiddleware);
-passport.deserializeUser(deserializeMiddleware);
+    const parsedUserData = parseToUserDTO(rows[0]);
+    return done(null, parsedUserData);
+  } catch (err) {
+    logger.error(err);
+    return done(err);
+  }
+});
+
+export default passport;
+
+
+
+
