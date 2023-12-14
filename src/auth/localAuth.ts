@@ -45,7 +45,7 @@ const localStrategyMiddleware = new LocalStrategy(
   },
   async (email, password, done) => {
     try {
-      const { rows } = await pool.query<UserParams>(
+      const { rows } = await pool.query(
         `
         SELECT *
         FROM user_data
@@ -65,7 +65,7 @@ const localStrategyMiddleware = new LocalStrategy(
             logger.log({ level: "error", message: `${err}` });
             return done(err);
           }
-          if (result) {
+          else if (result) {
             logger.info(`user ${email} authenticated successfully local strategy`);
             return done(null, user);
           } else {
@@ -89,7 +89,7 @@ const serializeMiddleware = (user: Partial<UserDTO>, done: any) => {
 
 const deserializeMiddleware = async (userId: string, done: any) => {
   try {
-    const { rows } = await pool.query<UserParams>(
+    const { rows } = await pool.query(
       `
       SELECT *
       FROM user_data
@@ -99,7 +99,7 @@ const deserializeMiddleware = async (userId: string, done: any) => {
     );
 
     const parsedUserData = parseToUserDTO(rows[0]);
-    logger.info(parsedUserData);
+    logger.info(`local deserialize: `, parsedUserData);
     done(null, parsedUserData);
   } catch (err) {
     logger.log({ level: "error", message: `${err}` });
